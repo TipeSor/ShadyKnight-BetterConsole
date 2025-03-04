@@ -29,7 +29,7 @@ namespace BetterConsole
                         QuickUI.lastActive.Deactivate();
                         __instance.menu.Activate();
                     }
-                    __instance.GetType().GetField("time").SetValue(0f, __instance);
+                    __instance.GetType().GetField("time").SetValue(time, __instance);
                 }
                 else
                 {
