@@ -20,6 +20,9 @@
         <Reference Include="BepInEx">
             <HintPath>libs\BepInEx.dll</HintPath>
         </Reference>
+        <Reference Include="FBPP">
+            <HintPath>libs\FileBasedPrefs.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule">
             <HintPath>libs\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
@@ -55,6 +58,9 @@
         </Reference>
         <Reference Include="HarmonyLib">
             <HintPath>libs\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="steamworks">
+            <HintPath>libs\com.rlabrecque.steamworks.net.dll</HintPath>
         </Reference>
     </ItemGroup>
 

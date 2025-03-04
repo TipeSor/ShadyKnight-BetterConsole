@@ -1,9 +1,8 @@
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace BetterConsole
 {
@@ -20,40 +19,44 @@ namespace BetterConsole
             }
             if (QuickUI.lastActive != __instance.menu && !Game.paused)
             {
+                FieldInfo timeField = __instance.GetType().GetField("time", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (InputsManager.lTriggerHolded && InputsManager.rTriggerHolded)
                 {
-                    float time = (float)__instance.GetType().GetField("time").GetValue(__instance);
+                    float time = (float)timeField.GetValue(__instance);
                     time = Mathf.MoveTowards(time, 1f, TimeManager.unscaledDelta);
                     if (time == 1f)
                     {
                         QuickUI.lastActive.Deactivate();
                         __instance.menu.Activate();
                     }
-                    __instance.GetType().GetField("time").SetValue(time, __instance);
+                    timeField.SetValue(__instance, time);
                 }
                 else
                 {
-                    __instance.GetType().GetField("time").SetValue(0f, __instance);
+                    timeField.SetValue(__instance, 0f);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape)) __instance.Back();
+            if (!Input.GetKeyDown(KeyCode.Return)) return true;
+
+            FieldInfo inputFieldInfo = __instance.GetType().GetField("inputField", BindingFlags.Instance | BindingFlags.NonPublic);
+            InputField inputField = (InputField)inputFieldInfo.GetValue(__instance);
+
+            string[] args = inputField.text.ToLower().Split(' ');
+            string commandName = args[0];
+
+            if (CommandHandler.HasCommand(commandName))
             {
-                __instance.Back();
-            }
-            if (!Input.GetKeyDown(KeyCode.Return))
-            {
-                return false;
+                args = args.Skip(1).ToArray();
+
+                CommandHandler.GetCommandByName(commandName).function.Invoke(args);
             }
 
-            InputField inputField = (InputField)__instance.GetType().GetField("inputField").GetValue(__instance);
-
-            string[] array = inputField.text.Split(' ');
             inputField.text = "";
             inputField.ActivateInputField();
             inputField.Select();
 
             __instance.GetType().GetField("inputField").SetValue(inputField, __instance);
-
             return true;
         }
     }

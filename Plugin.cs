@@ -13,5 +13,14 @@ public class Plugin : BaseUnityPlugin
     {
         Logger = base.Logger;
         Logger.LogInfo($"Plugin {PluginInfo.GUID} is loaded!");
+
+        Harmony harmony = new Harmony(PluginInfo.GUID);
+
+        harmony.PatchAll();
+    }
+
+    private void Start()
+    {
+        CommandHandler.InitializeCommands();
     }
 }
