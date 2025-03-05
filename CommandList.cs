@@ -5,7 +5,7 @@ namespace BetterConsole
 {
     class CommandList
     {
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void skull(string[] args)
         {
             TheSkullSequence[] sequences = Game.instance.sequences;
@@ -29,13 +29,13 @@ namespace BetterConsole
             }
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void load(string[] args)
         {
             Game.instance.LoadLevel(args[0]);
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void mousesens(string[] args)
         {
             float.TryParse(args[0], out var result3);
@@ -54,7 +54,7 @@ namespace BetterConsole
             }
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void setres(string[] args)
         {
             string[] array2 = args[0].Split('x');
@@ -72,35 +72,35 @@ namespace BetterConsole
             }
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void unlock(string[] args)
         {
             Object.FindObjectOfType<QuickConsole>().
             Unlock(args[0], full: false);
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void debug(string[] args)
         {
             Game.debug = !Game.debug;
             Game.message.Show($"debug {Game.debug}");
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void mod(string[] args)
         {
             Game.mod = !Game.mod;
             Game.message.Show($"mod {Game.mod}");
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void noslowmo(string[] args)
         {
             Game.noslowmo = !Game.noslowmo;
             Game.message.Show($"no slow-mo {Game.noslowmo}");
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void backup(string[] args)
         {
             FBPP.DeleteAll(); 
@@ -109,13 +109,13 @@ namespace BetterConsole
             Game.fading.Set(1f);
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void clear(string[] args)
         {
 
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void reset(string[] args)
         {
             FBPP.DeleteAll();
@@ -124,7 +124,7 @@ namespace BetterConsole
             Game.fading.Set(1f);
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void resetall(string[] args)
         {
             PlayerPrefs.DeleteAll();
@@ -134,7 +134,7 @@ namespace BetterConsole
             Game.fading.Set(1f);
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void resetsteamstats(string[] args)
         {
             if (SteamManager.Initialized)
@@ -145,13 +145,13 @@ namespace BetterConsole
             }
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void levelrush(string[] args)
         {
             LevelRush.Start();
         }
 
-        [CommandHandler.CommandMethod()]
+        [CustomCommand]
         static void mixedinputs(string[] args)
         {
             Game.inputs.ToggleMixedInputs();

@@ -7,9 +7,9 @@ namespace BetterConsole
 {
     public static class CommandHandler
     {
-        public delegate void Command(params string[] args);
+        private delegate void Command(params string[] args);
 
-        public struct commandEntry
+        private struct commandEntry
         {
             public string name;
 
@@ -22,10 +22,10 @@ namespace BetterConsole
             }
         }
 
-        public static List<commandEntry> commandList = new List<commandEntry>();
+        private static List<commandEntry> commandList = new List<commandEntry>();
 
-        public static commandEntry GetCommandByName(string command_name) => commandList.First(c => c.name == command_name);
-        public static bool HasCommand(string command_name) => commandList.Any(c => c.name == command_name);
+        private static commandEntry GetCommandByName(string command_name) => commandList.First(c => c.name == command_name);
+        private static bool HasCommand(string command_name) => commandList.Any(c => c.name == command_name);
 
         public static void InitializeCommands()
         {
@@ -40,8 +40,7 @@ namespace BetterConsole
 
                 foreach (MethodInfo method_ in methods)
                 {
-                    if (!Attribute.IsDefined(method_, typeof(CommandMethod))) continue;
-                    CommandMethod attribute = (CommandMethod)method_.GetCustomAttribute(typeof(CommandMethod));
+                    if (!Attribute.IsDefined(method_, typeof(CustomCommand))) continue;
                     try
                     {
                         string name = "";
@@ -50,7 +49,7 @@ namespace BetterConsole
 
                         Command function = (Command)method_.CreateDelegate(typeof(Command));
                         commandEntry command = new commandEntry
-                        {   
+                        {
                             name = name,
                             function = function,
                         };
@@ -71,12 +70,11 @@ namespace BetterConsole
             commandList.AddRange(command_list);
         }
 
-
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-        public class CommandMethod : Attribute
-        {
-            public CommandMethod() {}
-        }
     }
 
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class CustomCommand : Attribute
+    {
+        public CustomCommand() { }
+    }
 }
