@@ -5,7 +5,7 @@ namespace BetterConsole
 {
     class CommandList
     {
-        [CustomCommand]
+        [BetterConsole.CustomCommand]
         static void skull(string[] args)
         {
             TheSkullSequence[] sequences = Game.instance.sequences;

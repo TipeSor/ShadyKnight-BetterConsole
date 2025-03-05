@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace BetterConsole
 {
-    public static class CommandHandler
+    internal static class CommandHandler
     {
-        private delegate void Command(params string[] args);
+        public delegate void Command(params string[] args);
 
-        private struct commandEntry
+        public struct commandEntry
         {
             public string name;
 
@@ -24,8 +24,8 @@ namespace BetterConsole
 
         private static List<commandEntry> commandList = new List<commandEntry>();
 
-        private static commandEntry GetCommandByName(string command_name) => commandList.First(c => c.name == command_name);
-        private static bool HasCommand(string command_name) => commandList.Any(c => c.name == command_name);
+        public static commandEntry GetCommandByName(string command_name) => commandList.First(c => c.name == command_name);
+        public static bool HasCommand(string command_name) => commandList.Any(c => c.name == command_name);
 
         public static void InitializeCommands()
         {

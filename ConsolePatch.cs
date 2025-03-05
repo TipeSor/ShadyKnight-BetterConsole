@@ -8,7 +8,7 @@ namespace BetterConsole
 {
     [HarmonyPatch(typeof(QuickConsole))]
     [HarmonyPatch("Update")]
-    class ConsolePatch
+    internal class ConsolePatch
     {
         static bool Prefix(QuickConsole __instance)
         {
