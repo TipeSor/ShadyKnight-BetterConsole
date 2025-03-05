@@ -56,7 +56,7 @@ namespace BetterConsole
 
                         command_list.Add(command);
 
-                        Console.WriteLine($"Created command: {command.name} {name}");
+                        Console.WriteLine($"Created command: {command.name}");
                     }
                     catch (Exception ex)
                     {
