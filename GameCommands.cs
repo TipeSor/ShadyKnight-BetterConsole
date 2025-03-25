@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using Steamworks;
 using UnityEngine;
 
@@ -54,7 +56,7 @@ namespace BetterConsole
         [Command]
         public static void unlock(string value)
         {
-            Object.FindObjectOfType<QuickConsole>().
+            UnityEngine.Object.FindObjectOfType<QuickConsole>().
             Unlock(value, full: false);
         }
 
@@ -134,6 +136,25 @@ namespace BetterConsole
         public static void mixedinputs()
         {
             Game.inputs.ToggleMixedInputs();
+        }
+
+        [Command]
+        public static void help(string name)
+        {
+            if (CommandHandler.HasCommand(name))
+            {
+                CommandHandler.CommandEntry command = CommandHandler.GetCommandByName(name);
+                string commandHelp = $"usage `{command.name}";
+                foreach (ParameterInfo param in command.parameters)
+                {
+                    commandHelp += $" {Utils.GetCleanTypeName(param.ParameterType)}";
+                }
+                commandHelp += "`";
+                Game.message.Show(commandHelp);
+                return;
+            }
+
+            Game.message.Show("Command not found");
         }
     }
 }

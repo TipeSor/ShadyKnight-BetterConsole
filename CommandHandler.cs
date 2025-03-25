@@ -62,12 +62,12 @@ namespace BetterConsole
 
         private static readonly List<CommandEntry> CommandList = [];
 
-        private static CommandEntry GetCommandByName(string command_name)
+        internal static CommandEntry GetCommandByName(string command_name)
         {
             return CommandList.First(c => c.name == command_name);
         }
 
-        private static bool HasCommand(string command_name)
+        internal static bool HasCommand(string command_name)
         {
             return CommandList.Any(c => c.name == command_name);
         }
@@ -75,8 +75,6 @@ namespace BetterConsole
         internal static void InitializeCommands()
         {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            List<CommandEntry> command_list = [];
-
             foreach (Assembly assembly in assemblies)
             {
                 Type[] classes = assembly.GetTypes();
@@ -93,14 +91,14 @@ namespace BetterConsole
                         try
                         {
                             string name = $"{class_.Name.ToLower()}.{method_.Name.ToLower()}";
-                            if (class_.GetType() == typeof(GameCommands))
+                            if (class_ == typeof(GameCommands))
                             {
                                 name = $"{method_.Name.ToLower()}";
                             }
 
                             CommandEntry commandEntry = new(name, method_, null);
-                            command_list.Add(commandEntry);
-                            Console.WriteLine($"Created command: {commandEntry.name}");
+                            CommandList.Add(commandEntry);
+                            Console.WriteLine($"Created command: '{commandEntry.name}'");
                         }
                         catch (Exception ex)
                         {
