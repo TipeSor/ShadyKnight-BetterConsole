@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/tipe/source/c#/ShadyKnight-BetterConsole/BetterConsole.csproj": {}
+  },
+  "projects": {
+    "/home/tipe/source/c#/ShadyKnight-BetterConsole/BetterConsole.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/tipe/source/c#/ShadyKnight-BetterConsole/BetterConsole.csproj",
+        "projectName": "BetterConsole",
+        "projectPath": "/home/tipe/source/c#/ShadyKnight-BetterConsole/BetterConsole.csproj",
+        "packagesPath": "/home/tipe/.nuget/packages/",
+        "outputPath": "/home/tipe/source/c#/ShadyKnight-BetterConsole/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/tipe/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net4.7"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.bepinex.dev/v3/index.json": {},
+          "https://nuget.samboy.dev/v3/index.json": {}
+        },
+        "frameworks": {
+          "net47": {
+            "targetAlias": "net4.7",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net47": {
+          "targetAlias": "net4.7",
+          "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.104/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

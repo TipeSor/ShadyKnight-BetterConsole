@@ -8,9 +8,9 @@ namespace BetterConsole
 {
     [HarmonyPatch(typeof(QuickConsole))]
     [HarmonyPatch("Update")]
-    internal class ConsolePatch
+    public class ConsolePatch
     {
-        static bool Prefix(QuickConsole __instance)
+        public static bool Prefix(QuickConsole __instance)
         {
             if ((Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(KeyCode.BackQuote)) && QuickUI.lastActive != __instance && !Game.paused)
             {
@@ -36,21 +36,24 @@ namespace BetterConsole
                     timeField.SetValue(__instance, 0f);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Escape)) __instance.Back();
-            if (!Input.GetKeyDown(KeyCode.Return)) return true;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                __instance.Back();
+            }
+
+            if (!Input.GetKeyDown(KeyCode.Return))
+            {
+                return true;
+            }
 
             FieldInfo inputFieldInfo = __instance.GetType().GetField("inputField", BindingFlags.Instance | BindingFlags.NonPublic);
             InputField inputField = (InputField)inputFieldInfo.GetValue(__instance);
 
             string[] args = inputField.text.ToLower().Split(' ');
             string commandName = args[0];
+            string[] CommandArgs = [.. args.Skip(1)];
 
-            if (CommandHandler.HasCommand(commandName))
-            {
-                args = args.Skip(1).ToArray();
-
-                CommandHandler.GetCommandByName(commandName).function.Invoke(args);
-            }
+            CommandHandler.ExecuteCommand(commandName, CommandArgs);
 
             inputField.text = "";
             inputField.ActivateInputField();

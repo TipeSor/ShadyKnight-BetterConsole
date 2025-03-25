@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "pMWRsrjbi1U=",
+  "success": true,
+  "projectFilePath": "/home/tipe/source/c#/ShadyKnight-BetterConsole/BetterConsole.csproj",
+  "expectedPackageFiles": [
+    "/home/tipe/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/home/tipe/.nuget/packages/microsoft.netframework.referenceassemblies.net47/1.0.3/microsoft.netframework.referenceassemblies.net47.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

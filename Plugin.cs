@@ -2,25 +2,26 @@
 using BepInEx.Logging;
 using HarmonyLib;
 
-namespace BetterConsole;
-
-[BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
-public class Plugin : BaseUnityPlugin
+namespace BetterConsole
 {
-    internal static new ManualLogSource Logger;
-
-    private void Awake()
+    [BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
+    public class Plugin : BaseUnityPlugin
     {
-        Logger = base.Logger;
-        Logger.LogInfo($"Plugin {PluginInfo.GUID} is loaded!");
+        internal static new ManualLogSource Logger;
 
-        Harmony harmony = new Harmony(PluginInfo.GUID);
+        private void Awake()
+        {
+            Logger = base.Logger;
+            Logger.LogInfo($"Plugin {PluginInfo.GUID} is loaded!");
 
-        harmony.PatchAll();
-    }
+            Harmony harmony = new(PluginInfo.GUID);
 
-    private void Start()
-    {
-        CommandHandler.InitializeCommands();
+            harmony.PatchAll();
+        }
+
+        private void Start()
+        {
+            CommandHandler.InitializeCommands();
+        }
     }
 }
