@@ -107,14 +107,13 @@ namespace BetterConsole
 
         internal static void ExecuteCommand(string commandName, string[] args)
         {
-            if (!TryGetCommand(commandName, out CommandEntry))
+            if (!TryGetCommand(commandName, out CommandEntry? command))
             {
                 Console.WriteLine($"Command '{commandName}' not found.");
                 return;
             }
 
-            CommandEntry command = GetCommandByName(commandName);
-            command.Invoke(args);
+            command?.Invoke(args);
         }
     }
 

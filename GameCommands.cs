@@ -141,11 +141,10 @@ namespace BetterConsole
         [Command]
         public static void help(string name)
         {
-            if (CommandHandler.HasCommand(name))
+            if (CommandHandler.TryGetCommand(name, out CommandHandler.CommandEntry? command))
             {
-                CommandHandler.CommandEntry command = CommandHandler.GetCommandByName(name);
-                string commandHelp = $"usage `{command.name}";
-                foreach (ParameterInfo param in command.parameters)
+                string commandHelp = $"usage `{command?.name}";
+                foreach (ParameterInfo param in command?.parameters)
                 {
                     commandHelp += $" {Utils.GetCleanTypeName(param.ParameterType)}";
                 }
