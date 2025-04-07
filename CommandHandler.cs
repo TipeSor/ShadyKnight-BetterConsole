@@ -44,8 +44,8 @@ namespace BetterConsole
                     Type paramType = parameters[i].ParameterType;
                     try
                     {
-                        convertedArgs[i] = paramType ==
-                            typeof(bool) ? bool.Parse(args[i]) :
+                        convertedArgs[i] =
+                            paramType == typeof(bool) ? bool.Parse(args[i]) :
                             paramType.IsEnum ? Enum.Parse(paramType, args[i], true) :
                             Convert.ChangeType(args[i], paramType);
                     }
@@ -62,14 +62,10 @@ namespace BetterConsole
 
         private static readonly List<CommandEntry> CommandList = [];
 
-        internal static CommandEntry GetCommandByName(string command_name)
+        internal static bool TryGetCommand(string command_name, out CommandEntry? output_command)
         {
-            return CommandList.First(c => c.name == command_name);
-        }
-
-        internal static bool HasCommand(string command_name)
-        {
-            return CommandList.Any(c => c.name == command_name);
+            output_command = CommandList.FirstOrDefault(c => c.name == command_name);
+            return output_command != null;
         }
 
         internal static void InitializeCommands()
@@ -90,10 +86,10 @@ namespace BetterConsole
 
                         try
                         {
-                            string name = $"{class_.Name.ToLower()}.{method_.Name.ToLower()}";
-                            if (class_ == typeof(GameCommands))
+                            string name = $"{method_.Name.ToLower()}";
+                            if (class_ != typeof(GameCommands))
                             {
-                                name = $"{method_.Name.ToLower()}";
+                                name = $"{class_.Name.ToLower()}.{name}";
                             }
 
                             CommandEntry commandEntry = new(name, method_, null);
@@ -111,7 +107,7 @@ namespace BetterConsole
 
         internal static void ExecuteCommand(string commandName, string[] args)
         {
-            if (!HasCommand(commandName))
+            if (!TryGetCommand(commandName, out CommandEntry))
             {
                 Console.WriteLine($"Command '{commandName}' not found.");
                 return;
