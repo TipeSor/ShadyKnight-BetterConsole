@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using Steamworks;
 using UnityEngine;
@@ -9,9 +8,10 @@ namespace BetterConsole
     {
 #pragma warning disable IDE1006
         [Command]
+        [CommandHelp("Plays a skull sequence by index")]
         public static void skull(int value)
         {
-            if (value < Game.instance.sequences.Length)
+            if (value >= 0 && value < Game.instance.sequences.Length)
             {
                 Game.instance.LoadLevel("Skull");
                 TheSkull.overrideSequence = Game.instance.sequences[value];
@@ -20,12 +20,14 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Loads a level by name")]
         public static void load(string name)
         {
             Game.instance.LoadLevel(name);
         }
 
         [Command]
+        [CommandHelp("Sets mouse sensitivity")]
         public static void mousesens(float sens)
         {
             int num = Mathf.RoundToInt(sens * 100f);
@@ -44,6 +46,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Sets resolution")]
         public static void setres(int width, int height)
         {
             if (width > 460 && height > 320)
@@ -54,13 +57,15 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Unlocks levels")]
         public static void unlock(string value)
         {
-            UnityEngine.Object.FindObjectOfType<QuickConsole>().
+            Object.FindObjectOfType<QuickConsole>().
             Unlock(value, full: false);
         }
 
         [Command]
+        [CommandHelp("Toggles debug mode")]
         public static void debug()
         {
             Game.debug = !Game.debug;
@@ -68,6 +73,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Never used lmao")]
         public static void mod()
         {
             Game.mod = !Game.mod;
@@ -75,6 +81,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Toggles no slowmo")]
         public static void noslowmo()
         {
             Game.noslowmo = !Game.noslowmo;
@@ -82,6 +89,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Backup current save data")]
         public static void backup()
         {
             FBPP.DeleteAll();
@@ -91,12 +99,14 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Clears this text field")]
         public static void clear()
         {
             Game.message.Hide();
         }
 
         [Command]
+        [CommandHelp("Resets current slot data")]
         public static void reset()
         {
             FBPP.DeleteAll();
@@ -106,6 +116,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Resets all game data")]
         public static void resetall()
         {
             PlayerPrefs.DeleteAll();
@@ -116,6 +127,7 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Resets steam data")]
         public static void resetsteamstats()
         {
             if (SteamManager.Initialized)
@@ -127,28 +139,37 @@ namespace BetterConsole
         }
 
         [Command]
+        [CommandHelp("Starts Level Rush")]
         public static void levelrush()
         {
             LevelRush.Start();
         }
 
         [Command]
+        [CommandHelp("Toggles MixedInputs")]
         public static void mixedinputs()
         {
             Game.inputs.ToggleMixedInputs();
         }
 
         [Command]
+        [CommandHelp("Shows command usage")]
         public static void help(string name)
         {
-            if (CommandHandler.TryGetCommand(name, out CommandHandler.CommandEntry? command))
+            if (CommandHandler.TryGetCommand(name, out CommandHandler.CommandEntry command))
             {
                 string commandHelp = $"usage `{command?.name}";
                 foreach (ParameterInfo param in command?.parameters)
                 {
-                    commandHelp += $" {Utils.GetCleanTypeName(param.ParameterType)}";
+                    commandHelp += $" [{Utils.GetCleanTypeName(param.ParameterType)} {param.Name}]";
                 }
-                commandHelp += "`";
+                commandHelp += "`\n";
+
+                if (command?.help != "")
+                {
+                    commandHelp += $"help: {command?.help}";
+                }
+
                 Game.message.Show(commandHelp);
                 return;
             }

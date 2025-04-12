@@ -9,14 +9,15 @@ namespace BetterConsole
     {
         public delegate void CommandDelegate(object[] args);
 
-        public struct CommandEntry(string name, MethodInfo method, object target)
+        internal class CommandEntry(string name, MethodInfo method, object target, string help = "")
         {
-            public string name = name;
-            public MethodInfo method = method;
-            public ParameterInfo[] parameters = method.GetParameters();
-            public object target = target;
+            internal string name = name;
+            internal MethodInfo method = method;
+            internal ParameterInfo[] parameters = method.GetParameters();
+            internal object target = target;
+            internal string help = help;
 
-            public readonly void Invoke(string[] args)
+            internal void Invoke(string[] args)
             {
                 try
                 {
@@ -62,7 +63,7 @@ namespace BetterConsole
 
         private static readonly List<CommandEntry> CommandList = [];
 
-        internal static bool TryGetCommand(string command_name, out CommandEntry? output_command)
+        internal static bool TryGetCommand(string command_name, out CommandEntry output_command)
         {
             output_command = CommandList.FirstOrDefault(c => c.name == command_name);
             return output_command != null;
@@ -92,7 +93,14 @@ namespace BetterConsole
                                 name = $"{class_.Name.ToLower()}.{name}";
                             }
 
-                            CommandEntry commandEntry = new(name, method_, null);
+                            string help = "";
+                            if (Attribute.IsDefined(method_, typeof(CommandHelp)))
+                            {
+                                CommandHelp commandHelp = method_.GetCustomAttribute<CommandHelp>();
+                                help = commandHelp.commandHelp;
+                            }
+
+                            CommandEntry commandEntry = new(name, method_, null, help);
                             CommandList.Add(commandEntry);
                             Console.WriteLine($"Created command: '{commandEntry.name}'");
                         }
@@ -107,13 +115,13 @@ namespace BetterConsole
 
         internal static void ExecuteCommand(string commandName, string[] args)
         {
-            if (!TryGetCommand(commandName, out CommandEntry? command))
+            if (!TryGetCommand(commandName, out CommandEntry command))
             {
                 Console.WriteLine($"Command '{commandName}' not found.");
                 return;
             }
 
-            command?.Invoke(args);
+            command.Invoke(args);
         }
     }
 
@@ -121,5 +129,11 @@ namespace BetterConsole
     public class Command : Attribute
     {
         public Command() { }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class CommandHelp(string CommandHelp) : Attribute
+    {
+        public string commandHelp = CommandHelp;
     }
 }
