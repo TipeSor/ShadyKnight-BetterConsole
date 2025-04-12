@@ -4,9 +4,9 @@ This is a Shady Knight mod that allows custom commands to be added with an attri
 ## How to download?  
 The [latest release of the mod](https://github.com/TipeSor/ShadyKnight-BetterConsole/releases/latest) can be downloaded and placed in the `GameFolder/BepInEx/plugins` directory. 
 ## How to use custom commands? 
-Custom commands given to the game console follow the format: `class.method value_1 value_2 ...`
+Custom commands given to the game console follow the format: `class.method value_1 value_2 ...`\n
 You can check what the command requires with the `help command_name` command.
-`help command_name` outputs the usage in a format `class.method [type name] [type name]`
+it outputs the usage in a format `class.method [type name] [type name]`
 
 ## How to create custom commands?
 To create custom commands: 
@@ -22,12 +22,11 @@ public class ExampleClass
 }
 ```
 
-Note: All custom commands must be **public static** methods.  
-The console does not summon class instances from the void.
+Note: All custom commands must be **public static** methods.
 
 ## What types are supported?
 Supported argument types: `int`, `float`, `bool`, `string`, and enums.  
-Booleans must be `true` or `false` (case-insensitive).
+Booleans must be `true` or `false`.
 
 Also, any type that gets parsed by:
 ```cs
