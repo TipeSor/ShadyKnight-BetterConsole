@@ -4,8 +4,9 @@ This is a Shady Knight mod that allows custom commands to be added with an attri
 ## How to download?  
 The [latest release of the mod](https://github.com/TipeSor/ShadyKnight-BetterConsole/releases/latest) can be downloaded and placed in the `GameFolder/BepInEx/plugins` directory. 
 ## How to use custom commands? 
-Custom commands given to the game console follow the format: `class.method value_1 value_2 ...`\n
-You can check what the command requires with the `help command_name` command.
+Custom commands given to the game console follow the format: `class.method value_1 value_2 ...`  
+
+You can check what the command requires with the `help command_name` command.  
 it outputs the usage in a format `class.method [type name] [type name]`
 
 ## How to create custom commands?
