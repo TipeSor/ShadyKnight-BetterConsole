@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using UnityEngine;
 
 namespace BetterConsole
 {
@@ -9,21 +11,27 @@ namespace BetterConsole
     {
         public delegate void CommandDelegate(object[] args);
 
-        internal class CommandEntry(string name, MethodInfo method, object target, string help = "")
+        internal class CommandEntry(string name, MethodInfo method, string help = "")
         {
             internal string name = name;
             internal MethodInfo method = method;
             internal ParameterInfo[] parameters = method.GetParameters();
-            internal object target = target;
             internal string help = help;
+            private readonly Delegate compiledDelegate = CompileDelegate(method);
+
+            private static Delegate CompileDelegate(MethodInfo method)
+            {
+                Type[] paramTypes = [.. method.GetParameters().Select(static p => p.ParameterType)];
+                Type delegateType = Expression.GetActionType(paramTypes);
+                return method.CreateDelegate(delegateType);
+            }
 
             internal void Invoke(string[] args)
             {
                 try
                 {
                     object[] convertedArgs = ConvertArgs(args, parameters);
-                    _ = method.Invoke(target, convertedArgs);
-
+                    _ = compiledDelegate.DynamicInvoke(convertedArgs);
                 }
                 catch (Exception ex)
                 {
@@ -61,55 +69,37 @@ namespace BetterConsole
             }
         }
 
-        private static readonly List<CommandEntry> CommandList = [];
-
-        internal static bool TryGetCommand(string command_name, out CommandEntry output_command)
+        private static readonly Dictionary<string, CommandEntry> CommandList = [];
+        public static string[] GetCommandList()
         {
-            output_command = CommandList.FirstOrDefault(c => c.name == command_name);
-            return output_command != null;
+            return [.. CommandList.Keys];
         }
 
-        internal static void InitializeCommands()
+        internal static bool TryGetCommand(string name, out CommandEntry command)
         {
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies)
+            return CommandList.TryGetValue(name, out command);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        internal static void RegisterCommands()
+        {
+            BindingFlags MethodFlags = BindingFlags.Public | BindingFlags.Static;
+
+            foreach (MethodInfo method in AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .SelectMany(t => t.GetMethods(MethodFlags))
+                .Where(m => Attribute.IsDefined(m, typeof(Command))))
             {
-                Type[] classes = assembly.GetTypes();
-                foreach (Type class_ in classes)
+                Type type = method.DeclaringType;
+                string name = method.Name.ToLowerInvariant();
+                if (type != typeof(GameCommands))
                 {
-                    MethodInfo[] methods = class_.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
-                    foreach (MethodInfo method_ in methods)
-                    {
-                        if (!Attribute.IsDefined(method_, typeof(Command)))
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            string name = $"{method_.Name.ToLower()}";
-                            if (class_ != typeof(GameCommands))
-                            {
-                                name = $"{class_.Name.ToLower()}.{name}";
-                            }
-
-                            string help = "";
-                            if (Attribute.IsDefined(method_, typeof(CommandHelp)))
-                            {
-                                CommandHelp commandHelp = method_.GetCustomAttribute<CommandHelp>();
-                                help = commandHelp.commandHelp;
-                            }
-
-                            CommandEntry commandEntry = new(name, method_, null, help);
-                            CommandList.Add(commandEntry);
-                            Console.WriteLine($"Created command: '{commandEntry.name}'");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Cannot create command: {method_.Name} - {ex.Message}");
-                        }
-                    }
+                    name = $"{type.Name.ToLowerInvariant()}.{name}";
                 }
+
+                string help = method.GetCustomAttribute<CommandHelp>()?.commandHelp ?? string.Empty;
+                CommandList[name] = new(name, method, help);
+                Console.WriteLine($"Created command: `{name}`");
             }
         }
 

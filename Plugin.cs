@@ -18,10 +18,5 @@ namespace BetterConsole
 
             harmony.PatchAll();
         }
-
-        private void Start()
-        {
-            CommandHandler.InitializeCommands();
-        }
     }
 }

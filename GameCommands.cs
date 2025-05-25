@@ -73,14 +73,6 @@ namespace BetterConsole
         }
 
         [Command]
-        [CommandHelp("Never used lmao")]
-        public static void mod()
-        {
-            Game.mod = !Game.mod;
-            Game.message.Show($"mod {Game.mod}");
-        }
-
-        [Command]
         [CommandHelp("Toggles no slowmo")]
         public static void noslowmo()
         {

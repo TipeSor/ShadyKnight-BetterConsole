@@ -20,7 +20,7 @@ namespace BetterConsole
 
         public static string[] ParseArgs(string input)
         {
-            MatchCollection matches = Regex.Matches(input, @"[\""].+?[\""]|[^ ]+");
+            MatchCollection matches = Regex.Matches(input, @"[""].+?[""]|[^ ]+");
             return [.. matches.Cast<Match>().Select(static m =>
             {
                 string s = m.Value;

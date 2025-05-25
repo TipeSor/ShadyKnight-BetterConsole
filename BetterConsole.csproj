@@ -4,7 +4,6 @@
         <TargetFramework>net4.7</TargetFramework>
         <AssemblyName>BetterConsole</AssemblyName>
         <LangVersion>latest</LangVersion>
-       <RootNamespace>BetterConsole</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
