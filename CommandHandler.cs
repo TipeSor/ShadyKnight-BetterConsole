@@ -70,6 +70,7 @@ namespace BetterConsole
         }
 
         private static readonly Dictionary<string, CommandEntry> CommandList = [];
+
         public static string[] GetCommandList()
         {
             return [.. CommandList.Keys];
