@@ -1,12 +1,13 @@
 using System.Reflection;
+using System.Text;
 using Steamworks;
 using UnityEngine;
-
+#pragma warning disable IDE1006, IDE0058
 namespace BetterConsole
 {
+    [CommandClassCustomizer("")]
     public static class GameCommands
     {
-#pragma warning disable IDE1006
         [Command]
         [CommandHelp("Plays a skull sequence by index")]
         public static void skull(int value)
@@ -150,19 +151,20 @@ namespace BetterConsole
         {
             if (CommandHandler.TryGetCommand(name, out CommandEntry command))
             {
-                string commandHelp = $"usage `{command.FullName}";
+                StringBuilder sb = new();
+                sb.Append($"usage `{command.FullName}");
                 foreach (ParameterInfo param in command.ParameterInfo)
                 {
-                    commandHelp += $" [{Utils.GetCleanTypeName(param.ParameterType)} {param.Name}]";
+                    sb.Append($" [{Utils.GetCleanTypeName(param.ParameterType)} {param.Name}]");
                 }
-                commandHelp += "`\n";
+                sb.AppendLine();
 
                 if (!string.IsNullOrEmpty(command.HelpMessage))
                 {
-                    commandHelp += $"help: {command.HelpMessage}";
+                    sb.Append($"help: {command.HelpMessage}");
                 }
 
-                Game.message.Show(commandHelp);
+                Game.message.Show(sb.ToString());
                 return;
             }
 
