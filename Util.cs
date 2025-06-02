@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-
+using System.Text;
+#pragma warning disable IDE0011, IDE0058
 namespace BetterConsole
 {
-    public class Utils
+    public static class Utils
     {
         public static string GetCleanTypeName(Type type)
         {
@@ -18,16 +19,71 @@ namespace BetterConsole
             return type.Name;
         }
 
-        public static string[] ParseArgs(string input)
+        //  public static string[] ParseArgs(string input)
+        //  {
+        //      MatchCollection matches = Regex.Matches(input, @"[""].+?[""]|[(].+?[)]|[{].+?[}]|[[].+?[]]|[^ ]+");
+        //      return [.. matches.Cast<Match>().Select(static m =>
+        //      {
+        //          string s = m.Value;
+        //          return s.StartsWith("\"") && s.EndsWith("\"")
+        //              ? s.Substring(1, s.Length - 2)
+        //              : s;
+        //      })];
+        //  }
+
+        public static string[] SplitInput(string input)
         {
-            MatchCollection matches = Regex.Matches(input, @"[""].+?[""]|[^ ]+");
-            return [.. matches.Cast<Match>().Select(static m =>
+            List<string> tokens = [];
+            StringBuilder current = new();
+            Stack<char> stack = new();
+
+            bool inQuotes = false;
+            char lastChar = '\0';
+
+            Dictionary<char, char> pairs = new()
             {
-                string s = m.Value;
-                return s.StartsWith("\"") && s.EndsWith("\"")
-                    ? s.Substring(1, s.Length - 2)
-                    : s;
-            })];
+                ['('] = ')',
+                ['['] = ']',
+                ['{'] = '}'
+            };
+
+            foreach (char c in input)
+            {
+                if (c == '"' && lastChar != '\\')
+                {
+                    inQuotes = !inQuotes;
+                    continue;
+                }
+
+                lastChar = c;
+
+                if (stack.Count == 0 && !inQuotes && c == ' ')
+                {
+                    tokens.Add(current.ToString());
+                    current.Clear();
+                    continue;
+                }
+
+                if (pairs.ContainsKey(c))
+                {
+                    stack.Push(c);
+                    current.Append(c);
+                    continue;
+                }
+
+                if (pairs.ContainsValue(c))
+                {
+                    if (stack.Count == 0 || c != pairs[stack.Pop()])
+                        throw new InvalidOperationException("Mismatched delimiter.");
+                }
+
+                current.Append(c);
+            }
+
+            if (current.Length > 0)
+                tokens.Add(current.ToString());
+
+            return [.. tokens];
         }
     }
 }

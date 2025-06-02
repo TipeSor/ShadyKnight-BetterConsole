@@ -26,14 +26,4 @@ public class ExampleClass
 Note: All custom commands must be **public static** methods.
 
 ## What types are supported?
-Supported argument types: `int`, `float`, `bool`, `string`, and enums.  
-Booleans must be `true` or `false`.
-
-Also, any type that gets parsed by:
-```cs
-// Internally, the console uses this logic to convert arguments:
-convertedArgs[i] =
-    paramType == typeof(bool) ? bool.Parse(args[i]) :
-    paramType.IsEnum ? Enum.Parse(paramType, args[i], true) :
-    Convert.ChangeType(args[i], paramType);
-```
+Supported argument types: `short`, `int`, `long`, `float`, `double`, `byte`, `bool`, `string`

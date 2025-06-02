@@ -1,130 +1,101 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
-using UnityEngine;
 
 namespace BetterConsole
 {
-    internal static class CommandHandler
+    public static class CommandHandler
     {
-        public delegate void CommandDelegate(object[] args);
+        private static readonly Dictionary<string, CommandEntry> commandEntries = [];
+        private static readonly Dictionary<Type, TypeParser<object>> typeParsers = [];
+        private static bool loaded = false;
 
-        internal class CommandEntry(string name, MethodInfo method, string help = "")
+        public static void Initialize()
         {
-            internal string name = name;
-            internal MethodInfo method = method;
-            internal ParameterInfo[] parameters = method.GetParameters();
-            internal string help = help;
-            private readonly Delegate compiledDelegate = CompileDelegate(method);
-
-            private static Delegate CompileDelegate(MethodInfo method)
+            if (!loaded)
             {
-                Type[] paramTypes = [.. method.GetParameters().Select(static p => p.ParameterType)];
-                Type delegateType = Expression.GetActionType(paramTypes);
-                return method.CreateDelegate(delegateType);
-            }
+                loaded = true;
 
-            internal void Invoke(string[] args)
-            {
-                try
-                {
-                    object[] convertedArgs = ConvertArgs(args, parameters);
-                    _ = compiledDelegate.DynamicInvoke(convertedArgs);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error executing command '{name}': {ex.Message}");
-                }
-            }
+                BindingFlags flags = BindingFlags.Public | BindingFlags.Static;
+                (MethodInfo, CommandAttribute)[] commands = ReflectionUtility.GetMethodsWithAttribute<CommandAttribute>(flags: flags);
+                (Type, TypeParserAttribute)[] parsers = ReflectionUtility.GetClassesWithAttribute<TypeParserAttribute>();
 
-            private static object[] ConvertArgs(string[] args, ParameterInfo[] parameters)
-            {
-                if (args.Length != parameters.Length)
+                foreach ((MethodInfo method, CommandAttribute _) in commands)
                 {
-                    throw new ArgumentException($"Expected {parameters.Length} arguments, but got {args.Length}.");
+                    CommandEntry commandEntry = new(method);
+                    commandEntries[commandEntry.FullName] = commandEntry;
+                    Plugin.Logger.LogInfo($"Initilized command: {commandEntry.FullName}");
                 }
 
-                object[] convertedArgs = new object[parameters.Length];
-
-                for (int i = 0; i < parameters.Length; i++)
+                foreach ((Type type, TypeParserAttribute attribute) in parsers)
                 {
-                    Type paramType = parameters[i].ParameterType;
-                    try
-                    {
-                        convertedArgs[i] =
-                            paramType == typeof(bool) ? bool.Parse(args[i]) :
-                            paramType.IsEnum ? Enum.Parse(paramType, args[i], true) :
-                            Convert.ChangeType(args[i], paramType);
-                    }
-                    catch
-                    (Exception)
-                    {
-                        throw new ArgumentException($"Invalid argument '{args[i]}' for parameter {parameters[i].Name} (expected type: {paramType.Name}).");
-                    }
+                    typeParsers.Add(attribute.ParseType, (TypeParser<object>)Activator.CreateInstance(type));
+                    Plugin.Logger.LogInfo($"Initialized Type Parser for {attribute.ParseType}");
                 }
-
-                return convertedArgs;
             }
         }
 
-        private static readonly Dictionary<string, CommandEntry> CommandList = [];
-
-        public static string[] GetCommandList()
+        public static bool TryGetCommand(string commandName, out CommandEntry commandEntry)
         {
-            return [.. CommandList.Keys];
+            return commandEntries.TryGetValue(commandName, out commandEntry);
         }
 
-        internal static bool TryGetCommand(string name, out CommandEntry command)
+        public static void ProcessInput(string input)
         {
-            return CommandList.TryGetValue(name, out command);
+            string[] str = Utils.SplitInput(input);
+            ProcessCommand(str[0], [.. str.Skip(1)]);
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        internal static void RegisterCommands()
+        public static void ProcessCommand(string command, string[] args)
         {
-            BindingFlags MethodFlags = BindingFlags.Public | BindingFlags.Static;
-
-            foreach (MethodInfo method in AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .SelectMany(t => t.GetMethods(MethodFlags))
-                .Where(m => Attribute.IsDefined(m, typeof(Command))))
+            if (!commandEntries.TryGetValue(command, out CommandEntry commandEntry))
             {
-                Type type = method.DeclaringType;
-                string name = method.Name.ToLowerInvariant();
-                if (type != typeof(GameCommands))
-                {
-                    name = $"{type.Name.ToLowerInvariant()}.{name}";
-                }
-
-                string help = method.GetCustomAttribute<CommandHelp>()?.commandHelp ?? string.Empty;
-                CommandList[name] = new(name, method, help);
-                Console.WriteLine($"Created command: `{name}`");
-            }
-        }
-
-        internal static void ExecuteCommand(string commandName, string[] args)
-        {
-            if (!TryGetCommand(commandName, out CommandEntry command))
-            {
-                Console.WriteLine($"Command '{commandName}' not found.");
+                Plugin.Logger.LogError($"command `{command}` not found");
                 return;
             }
 
-            command.Invoke(args);
+            ParameterInfo[] parameters = commandEntry.ParameterInfo;
+
+            if (args.Length != parameters.Length)
+            {
+                Plugin.Logger.LogError("argument length doesnt match parameter length");
+                return;
+            }
+
+            object[] parsedParameters = new object[parameters.Length];
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type parameterType = parameters[i].ParameterType;
+                if (!typeParsers.TryGetValue(parameterType, out TypeParser<object> parser))
+                {
+                    Plugin.Logger.LogError($"No parser for type `{parameterType.Name}`");
+                    return;
+                }
+
+                if (!parser.TryParse(args[i], out object value))
+                {
+                    Plugin.Logger.LogError($"Invalid argument '{args[i]}' for parameter {parameters[i].Name} (expected type: {parameters[i].ParameterType.Name}).");
+                    return;
+                }
+
+                parsedParameters[i] = value;
+            }
+
+            InvokeCommand(commandEntry, parsedParameters);
         }
-    }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class Command : Attribute
-    {
-        public Command() { }
-    }
-
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class CommandHelp(string CommandHelp) : Attribute
-    {
-        public string commandHelp = CommandHelp;
+        public static void InvokeCommand(CommandEntry command, object[] args)
+        {
+            try
+            {
+                _ = command.MethodInfo.Invoke(null, args);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError(ex);
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace BetterConsole
     {
         internal static new ManualLogSource Logger;
 
-        private void Awake()
+        public void Awake()
         {
             Logger = base.Logger;
             Logger.LogInfo($"Plugin {PluginInfo.GUID} is loaded!");
@@ -17,6 +17,11 @@ namespace BetterConsole
             Harmony harmony = new(PluginInfo.GUID);
 
             harmony.PatchAll();
+        }
+
+        public void Start()
+        {
+            CommandHandler.Initialize();
         }
     }
 }

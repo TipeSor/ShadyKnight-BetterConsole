@@ -148,18 +148,18 @@ namespace BetterConsole
         [CommandHelp("Shows command usage")]
         public static void help(string name)
         {
-            if (CommandHandler.TryGetCommand(name, out CommandHandler.CommandEntry command))
+            if (CommandHandler.TryGetCommand(name, out CommandEntry command))
             {
-                string commandHelp = $"usage `{command?.name}";
-                foreach (ParameterInfo param in command?.parameters)
+                string commandHelp = $"usage `{command.FullName}";
+                foreach (ParameterInfo param in command.ParameterInfo)
                 {
                     commandHelp += $" [{Utils.GetCleanTypeName(param.ParameterType)} {param.Name}]";
                 }
                 commandHelp += "`\n";
 
-                if (command?.help != "")
+                if (!string.IsNullOrEmpty(command.HelpMessage))
                 {
-                    commandHelp += $"help: {command?.help}";
+                    commandHelp += $"help: {command.HelpMessage}";
                 }
 
                 Game.message.Show(commandHelp);
