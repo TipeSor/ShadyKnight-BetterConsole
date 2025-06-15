@@ -15,6 +15,7 @@ it outputs the usage in a format `Domain.Command [type name] [type name]`
 ### How to create custom commands?
 To create custom commands: 
 ```cs
+[BetterConsole.CommandClassCustomizer("NewDomainName")] // optional, will used class name if not added
 public class ExampleClass
 {
     [BetterConsole.Command]
