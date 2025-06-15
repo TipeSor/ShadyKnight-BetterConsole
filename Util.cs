@@ -25,48 +25,65 @@ namespace BetterConsole
             StringBuilder current = new();
             Stack<char> stack = new();
 
+            bool escape = false;
             bool inQuotes = false;
-            char lastChar = '\0';
 
             Dictionary<char, char> pairs = new()
             {
                 ['('] = ')',
                 ['['] = ']',
-                ['{'] = '}'
+                ['{'] = '}',
             };
 
             foreach (char c in input)
             {
-                if (c == '"' && lastChar != '\\')
+                if (escape)
                 {
-                    inQuotes = !inQuotes;
+                    current.Append(c);
+                    escape = false;
                     continue;
                 }
 
-                lastChar = c;
+                switch (c)
+                {
+                    case '\\':
+                        escape = true;
+                        continue;
+                    case '"':
+                        inQuotes = !inQuotes;
+                        continue;
+                    default:
+                        break;
+                }
 
                 if (stack.Count == 0 && !inQuotes && c == ' ')
                 {
-                    tokens.Add(current.ToString());
+                    string temp = current.ToString();
+                    if (!string.IsNullOrWhiteSpace(temp)) tokens.Add(temp);
                     current.Clear();
                     continue;
                 }
 
-                if (pairs.ContainsKey(c))
+                if (!inQuotes)
                 {
-                    stack.Push(c);
-                    current.Append(c);
-                    continue;
-                }
+                    if (pairs.ContainsKey(c))
+                        stack.Push(c);
 
-                if (pairs.ContainsValue(c))
-                {
-                    if (stack.Count == 0 || c != pairs[stack.Pop()])
-                        throw new InvalidOperationException("Mismatched delimiter.");
+                    if (pairs.ContainsValue(c))
+                        if (stack.Count == 0 || c != pairs[stack.Pop()])
+                            throw new InvalidOperationException($"Mismatched delimiter: '{c}'.");
                 }
 
                 current.Append(c);
             }
+
+            if (escape)
+                throw new InvalidOperationException("Unterminated escape sequence.");
+            if (inQuotes)
+                throw new InvalidOperationException("Unclosed quotes.");
+            if (stack.Count > 0)
+                throw new InvalidOperationException($"Unclosed delimiter: '{stack.Peek()}'.");
+
 
             if (current.Length > 0)
                 tokens.Add(current.ToString());

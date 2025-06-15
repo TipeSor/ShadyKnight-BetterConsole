@@ -14,12 +14,12 @@ namespace BetterConsole
 
         public CommandEntry(MethodInfo methodInfo)
         {
-            CommandClassCustomizerAttribute customAttribute = methodInfo.DeclaringType.GetCustomAttribute<CommandClassCustomizerAttribute>();
+            CommandDomainAttribute customAttribute = methodInfo.DeclaringType.GetCustomAttribute<CommandDomainAttribute>();
             Command = methodInfo.Name;
             DomainName = customAttribute?.NewDomainName ?? methodInfo.DeclaringType.Name;
 
             CommandHelpAttribute helpAttribute = methodInfo.GetCustomAttribute<CommandHelpAttribute>();
-            HelpMessage = helpAttribute.HelpMessage ?? string.Empty;
+            HelpMessage = helpAttribute?.HelpMessage ?? string.Empty;
 
             ParameterInfo = methodInfo.GetParameters();
             MethodInfo = methodInfo;

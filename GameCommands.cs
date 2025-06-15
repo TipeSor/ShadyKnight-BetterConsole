@@ -5,7 +5,7 @@ using UnityEngine;
 #pragma warning disable IDE1006, IDE0058
 namespace BetterConsole
 {
-    [CommandClassCustomizer("")]
+    [CommandDomain("")]
     public static class GameCommands
     {
         [Command]
