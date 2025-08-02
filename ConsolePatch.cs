@@ -54,7 +54,7 @@ namespace BetterConsole
             inputField.ActivateInputField();
             inputField.Select();
 
-            __instance.GetType().GetField("inputField").SetValue(inputField, __instance);
+            __instance.GetType().GetField("inputField").SetValue(__instance, inputField);
             return true;
         }
     }

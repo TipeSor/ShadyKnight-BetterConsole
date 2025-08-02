@@ -82,7 +82,7 @@ namespace BetterConsole
         }
 
         [Command]
-        [CommandHelp("Backup current save data")]
+        [CommandHelp("Dont do this")]
         public static void backup()
         {
             FBPP.DeleteAll();

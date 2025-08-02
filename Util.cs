@@ -37,24 +37,9 @@ namespace BetterConsole
 
             foreach (char c in input)
             {
-                if (escape)
-                {
-                    current.Append(c);
-                    escape = false;
-                    continue;
-                }
-
-                switch (c)
-                {
-                    case '\\':
-                        escape = true;
-                        continue;
-                    case '"':
-                        inQuotes = !inQuotes;
-                        continue;
-                    default:
-                        break;
-                }
+                if (escape) { current.Append(c); escape = false; continue; }
+                if (c == '\\') { escape = true; continue; }
+                if (c == '"') { inQuotes = !inQuotes; continue; }
 
                 if (stack.Count == 0 && !inQuotes && c == ' ')
                 {
@@ -73,7 +58,6 @@ namespace BetterConsole
                         if (stack.Count == 0 || c != pairs[stack.Pop()])
                             throw new InvalidOperationException($"Mismatched delimiter: '{c}'.");
                 }
-
                 current.Append(c);
             }
 
@@ -83,7 +67,6 @@ namespace BetterConsole
                 throw new InvalidOperationException("Unclosed quotes.");
             if (stack.Count > 0)
                 throw new InvalidOperationException($"Unclosed delimiter: '{stack.Peek()}'.");
-
 
             if (current.Length > 0)
                 tokens.Add(current.ToString());
